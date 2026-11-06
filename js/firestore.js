@@ -2,6 +2,7 @@ import {
   doc,
   getDoc,
   setDoc,
+  deleteDoc,
   getDocs,
   collection,
   query,
@@ -275,5 +276,120 @@ export async function importBackupData(backupData) {
     return true;
   } catch (error) {
     handleFirestoreError(error, OperationType.WRITE, `users/${uid}/batchImport`);
+  }
+}
+
+/**
+ * Get all user verbs from 'user_verbs' collection
+ */
+export async function getUserVerbs() {
+  const uid = getUserId();
+  if (!auth.currentUser && window.__DEMO_USER) {
+    return Object.values(demoStorage.verbs || {});
+  }
+
+  const colPath = `users/${uid}/user_verbs`;
+  try {
+    const q = query(collection(db, 'users', uid, 'user_verbs'), orderBy('createdAt', 'desc'));
+    const snapshot = await getDocs(q);
+    const verbs = [];
+    snapshot.forEach((d) => {
+      verbs.push({ ...d.data(), id: d.id });
+    });
+    return verbs;
+  } catch (error) {
+    handleFirestoreError(error, OperationType.LIST, colPath);
+  }
+}
+
+/**
+ * Save / Update a verb document in 'user_verbs' collection
+ */
+export async function saveUserVerb(verbData) {
+  const uid = getUserId();
+  const verbId = verbData.id || `verb_${Date.now()}`;
+
+  if (!auth.currentUser && window.__DEMO_USER) {
+    if (!demoStorage.verbs) demoStorage.verbs = {};
+    demoStorage.verbs[verbId] = {
+      ...verbData,
+      id: verbId,
+      userId: uid,
+      updatedAt: new Date().toISOString()
+    };
+    return demoStorage.verbs[verbId];
+  }
+
+  const docPath = `users/${uid}/user_verbs/${verbId}`;
+  try {
+    const docRef = doc(db, 'users', uid, 'user_verbs', verbId);
+    const existingSnap = await getDoc(docRef);
+
+    const payload = {
+      ...verbData,
+      id: verbId,
+      userId: uid,
+      updatedAt: serverTimestamp(),
+    };
+
+    if (!existingSnap.exists()) {
+      payload.createdAt = serverTimestamp();
+    } else {
+      payload.createdAt = existingSnap.data().createdAt || serverTimestamp();
+    }
+
+    await setDoc(docRef, payload, { merge: true });
+    return payload;
+  } catch (error) {
+    handleFirestoreError(error, OperationType.WRITE, docPath);
+  }
+}
+
+/**
+ * Delete a verb document from 'user_verbs' collection
+ */
+export async function deleteUserVerb(verbId) {
+  const uid = getUserId();
+  if (!auth.currentUser && window.__DEMO_USER) {
+    if (demoStorage.verbs) {
+      delete demoStorage.verbs[verbId];
+    }
+    return true;
+  }
+
+  const docPath = `users/${uid}/user_verbs/${verbId}`;
+  try {
+    const docRef = doc(db, 'users', uid, 'user_verbs', verbId);
+    await deleteDoc(docRef);
+    return true;
+  } catch (error) {
+    handleFirestoreError(error, OperationType.DELETE, docPath);
+  }
+}
+
+/**
+ * Update mastery status of a verb in 'user_verbs'
+ */
+export async function updateUserVerbMastery(verbId, isMastered) {
+  const uid = getUserId();
+  if (!auth.currentUser && window.__DEMO_USER) {
+    if (demoStorage.verbs && demoStorage.verbs[verbId]) {
+      demoStorage.verbs[verbId].mastered = isMastered;
+      demoStorage.verbs[verbId].status = isMastered ? 'mastered' : 'learning';
+    }
+    return true;
+  }
+
+  const docPath = `users/${uid}/user_verbs/${verbId}`;
+  try {
+    const docRef = doc(db, 'users', uid, 'user_verbs', verbId);
+    await setDoc(docRef, {
+      mastered: isMastered,
+      status: isMastered ? 'mastered' : 'learning',
+      updatedAt: serverTimestamp()
+    }, { merge: true });
+    return true;
+  } catch (error) {
+    handleFirestoreError(error, OperationType.UPDATE, docPath);
   }
 }

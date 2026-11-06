@@ -1047,3 +1047,154 @@
   color: var(--text-muted);
   padding: 4px;
 }
+
+/* ==========================================================================
+   Verb Memory Flashcards & Fast Revision Lab
+   ========================================================================== */
+
+.verb-lab-nav {
+  display: flex;
+  background-color: var(--bg-input);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 4px;
+  gap: 4px;
+  margin-bottom: 24px;
+  width: fit-content;
+}
+
+.verb-tab-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.verb-tab-btn:hover {
+  color: var(--text-primary);
+}
+
+.verb-tab-btn.active {
+  background-color: var(--bg-card);
+  color: var(--teal-primary);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
+}
+
+/* Flashcard 3D Flip System */
+.flashcard-stage {
+  perspective: 1200px;
+  max-width: 680px;
+  margin: 0 auto 24px;
+  width: 100%;
+}
+
+.flashcard-card-3d {
+  position: relative;
+  width: 100%;
+  min-height: 400px;
+  border-radius: var(--radius-xl);
+  transform-style: preserve-3d;
+  transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+  cursor: pointer;
+}
+
+.flashcard-card-3d.flipped {
+  transform: rotateY(180deg);
+}
+
+.flashcard-face {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: var(--radius-xl);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  padding: 28px 32px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--border-subtle);
+  background: radial-gradient(circle at 50% 20%, #17243c 0%, #111827 90%);
+}
+
+.flashcard-face.back {
+  transform: rotateY(180deg);
+  background: radial-gradient(circle at 50% 20%, #12283a 0%, #0d1726 90%);
+  overflow-y: auto;
+}
+
+.verb-hero-title {
+  font-size: 38px;
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: -0.03em;
+  margin-top: 12px;
+}
+
+.verb-phonetic-badge {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--teal-primary);
+  background-color: rgba(20, 184, 166, 0.12);
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  display: inline-block;
+  margin-top: 6px;
+}
+
+.real-life-sentence-item {
+  background-color: var(--bg-input);
+  border: 1px solid var(--border-subtle);
+  border-left: 3px solid var(--teal-primary);
+  border-radius: var(--radius-md);
+  padding: 10px 14px;
+  margin-bottom: 8px;
+  font-size: 13.5px;
+  color: var(--text-primary);
+  line-height: 1.45;
+}
+
+.memory-hook-container {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.12), rgba(239, 68, 68, 0.08));
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  border-radius: var(--radius-md);
+  padding: 12px 16px;
+  margin-top: 12px;
+}
+
+.audio-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: var(--radius-full);
+  background-color: rgba(20, 184, 166, 0.15);
+  color: var(--teal-primary);
+  transition: all var(--transition-fast);
+  cursor: pointer;
+}
+
+.audio-btn:hover {
+  background-color: var(--teal-primary);
+  color: #ffffff;
+  transform: scale(1.05);
+}
+
+.flashcard-nav-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  max-width: 680px;
+  margin: 0 auto 28px;
+  flex-wrap: wrap;
+}

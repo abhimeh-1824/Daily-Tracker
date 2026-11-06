@@ -1,8 +1,6 @@
 import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
-  signInWithPopup,
-  GoogleAuthProvider,
   signOut,
   sendPasswordResetEmail,
   updateProfile,
@@ -12,8 +10,6 @@ import {
 } from 'firebase/auth';
 import { auth } from './firebase-config.js';
 import { showToast } from './utils.js';
-
-const googleProvider = new GoogleAuthProvider();
 
 // Ensure local persistence for cross-session/cross-device access
 setPersistence(auth, browserLocalPersistence).catch(err => {
@@ -41,25 +37,6 @@ onAuthStateChanged(auth, (user) => {
 });
 
 /**
- * Sign in using Google Popup (pre-configured and ready in Firebase)
- */
-export async function loginWithGoogle() {
-  try {
-    const cred = await signInWithPopup(auth, googleProvider);
-    showToast(`Welcome, ${cred.user.displayName || cred.user.email}!`, 'success');
-    return cred.user;
-  } catch (error) {
-    if (error.code === 'auth/popup-closed-by-user') {
-      showToast('Sign-in cancelled.', 'info');
-      return null;
-    }
-    console.error('Google Sign-in error:', error);
-    showToast(`Google Sign-in failed: ${error.message}`, 'error');
-    throw error;
-  }
-}
-
-/**
  * Log in with email and password
  */
 export async function loginUser(email, password) {
@@ -70,8 +47,7 @@ export async function loginUser(email, password) {
   } catch (error) {
     let msg = error.message;
     if (error.code === 'auth/operation-not-allowed') {
-      msg = 'Email/Password sign-in is not enabled yet in Firebase Console. Please use "Sign in with Google" or enable Email/Password under Authentication > Sign-in method in Firebase console.';
-      notifyOperationNotAllowed();
+      msg = 'Email/Password provider is not yet enabled in Firebase Console. Please enable Email/Password under Authentication > Sign-in method in Firebase Console.';
     } else if (error.code === 'auth/invalid-credential' || error.code === 'auth/wrong-password' || error.code === 'auth/user-not-found') {
       msg = 'Invalid email or password. Please verify and try again.';
     } else if (error.code === 'auth/invalid-email') {
@@ -98,8 +74,7 @@ export async function signupUser(email, password, displayName) {
   } catch (error) {
     let msg = error.message;
     if (error.code === 'auth/operation-not-allowed') {
-      msg = 'Email/Password provider is not yet enabled in Firebase Console. Use "Sign in with Google" or enable Email/Password in Firebase Console.';
-      notifyOperationNotAllowed();
+      msg = 'Email/Password provider is not yet enabled in Firebase Console. Please enable Email/Password under Authentication > Sign-in method in Firebase Console.';
     } else if (error.code === 'auth/email-already-in-use') {
       msg = 'This email is already registered. Please log in instead.';
     } else if (error.code === 'auth/weak-password') {
@@ -107,13 +82,6 @@ export async function signupUser(email, password, displayName) {
     }
     showToast(msg, 'error', 6000);
     throw error;
-  }
-}
-
-function notifyOperationNotAllowed() {
-  const helperBox = document.getElementById('auth-provider-notice');
-  if (helperBox) {
-    helperBox.style.display = 'block';
   }
 }
 

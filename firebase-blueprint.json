@@ -107,6 +107,75 @@
         }
       },
       "required": ["userId", "createdAt", "updatedAt"]
+    },
+    "userVerb": {
+      "title": "User Verb Flashcard",
+      "description": "User-defined verb with meaning, grammatical usage, 2-3 real-life sentences, memory hooks, and mastery status for contextual learning.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the verb document"
+        },
+        "userId": {
+          "type": "string",
+          "description": "Firebase UID of the owner user"
+        },
+        "verb": {
+          "type": "string",
+          "description": "Base form of the verb",
+          "maxLength": 100
+        },
+        "meaning": {
+          "type": "string",
+          "description": "Definition and core meaning of the verb",
+          "maxLength": 1000
+        },
+        "usage": {
+          "type": "string",
+          "description": "Contextual usage rules, collocations, or grammatical patterns",
+          "maxLength": 1000
+        },
+        "forms": {
+          "type": "string",
+          "description": "Verb forms e.g. V1, V2, V3 or participles",
+          "maxLength": 500
+        },
+        "phonetic": {
+          "type": "string",
+          "description": "IPA phonetic pronunciation guide",
+          "maxLength": 100
+        },
+        "sentences": {
+          "type": "array",
+          "description": "List of 2 to 3 real-life sentences demonstrating practical usage"
+        },
+        "memoryHook": {
+          "type": "string",
+          "description": "Cognitive mnemonic or memory hook for rapid retention",
+          "maxLength": 1000
+        },
+        "status": {
+          "type": "string",
+          "description": "Mastery state: learning, reviewing, or mastered",
+          "enum": ["learning", "reviewing", "mastered"]
+        },
+        "mastered": {
+          "type": "boolean",
+          "description": "Whether the user has mastered this verb"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Creation timestamp"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Last update timestamp"
+        }
+      },
+      "required": ["userId", "verb", "meaning", "createdAt", "updatedAt"]
     }
   },
   "firestore": {
@@ -121,6 +190,18 @@
         "$ref": "#/entities/userProfile"
       },
       "description": "User settings, challenge start date, and preferences"
+    },
+    "/users/{userId}/user_verbs/{verbId}": {
+      "schema": {
+        "$ref": "#/entities/userVerb"
+      },
+      "description": "User verb flashcards subcollection under user"
+    },
+    "/user_verbs/{verbId}": {
+      "schema": {
+        "$ref": "#/entities/userVerb"
+      },
+      "description": "User verb flashcards collection for contextual memory"
     }
   }
 }

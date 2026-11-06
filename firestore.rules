@@ -22,6 +22,10 @@ service cloud.firestore {
       return id is string && id.size() <= 64 && id.matches('^[a-zA-Z0-9_\\-]+$');
     }
 
+    function isValidVerbId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
     function incoming() {
       return request.resource.data;
     }
@@ -67,6 +71,43 @@ service cloud.firestore {
         && incoming().createdAt == existing().createdAt
         && incoming().updatedAt == request.time;
       allow delete: if isOwner(userId) && isValidSettingId(settingId);
+    }
+
+    // User Verbs subcollection under /users/{userId}/user_verbs/{verbId}
+    match /users/{userId}/user_verbs/{verbId} {
+      allow read: if isOwner(userId);
+      allow create: if isOwner(userId)
+        && isValidVerbId(verbId)
+        && incoming().userId == request.auth.uid
+        && incoming().verb is string
+        && incoming().meaning is string
+        && incoming().createdAt == request.time
+        && incoming().updatedAt == request.time;
+      allow update: if isOwner(userId)
+        && isValidVerbId(verbId)
+        && incoming().userId == existing().userId
+        && incoming().createdAt == existing().createdAt
+        && incoming().updatedAt == request.time;
+      allow delete: if isOwner(userId) && isValidVerbId(verbId);
+    }
+
+    // Root-level user_verbs collection: /user_verbs/{verbId}
+    match /user_verbs/{verbId} {
+      allow read: if isSignedIn() && existing().userId == request.auth.uid;
+      allow create: if isSignedIn()
+        && isValidVerbId(verbId)
+        && incoming().userId == request.auth.uid
+        && incoming().verb is string
+        && incoming().meaning is string
+        && incoming().createdAt == request.time
+        && incoming().updatedAt == request.time;
+      allow update: if isSignedIn()
+        && isValidVerbId(verbId)
+        && existing().userId == request.auth.uid
+        && incoming().userId == existing().userId
+        && incoming().createdAt == existing().createdAt
+        && incoming().updatedAt == request.time;
+      allow delete: if isSignedIn() && isValidVerbId(verbId) && existing().userId == request.auth.uid;
     }
   }
 }

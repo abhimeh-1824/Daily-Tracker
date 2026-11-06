@@ -2,7 +2,6 @@ import {
   subscribeAuth,
   loginUser,
   signupUser,
-  loginWithGoogle,
   resetPassword,
   logoutUser,
   getAuthUser
@@ -30,6 +29,7 @@ import {
 } from './subject-trackers.js';
 import { renderSettings } from './settings.js';
 import { setDemoModeUser } from './firestore.js';
+import { renderVerbFlashcards } from './verbs.js';
 
 let currentActiveView = 'dashboard';
 let currentLoadedDayData = null;
@@ -142,6 +142,8 @@ export function switchView(viewName) {
     renderDSATracker();
   } else if (viewName === 'english') {
     renderEnglishTracker();
+  } else if (viewName === 'verbs') {
+    renderVerbFlashcards(document.getElementById('verbs-view'));
   } else if (viewName === 'gate') {
     renderGATETracker();
   } else if (viewName === 'challenge') {
@@ -349,21 +351,6 @@ function setupAuthUI() {
       const email = prompt('Enter your registered email address to receive a password reset link:');
       if (email) {
         await resetPassword(email);
-      }
-    };
-  }
-
-  // Google Sign-In
-  const googleBtn = document.getElementById('btn-google-auth');
-  if (googleBtn) {
-    googleBtn.onclick = async () => {
-      try {
-        googleBtn.disabled = true;
-        await loginWithGoogle();
-      } catch (err) {
-        console.error('Google Sign-in error:', err);
-      } finally {
-        googleBtn.disabled = false;
       }
     };
   }

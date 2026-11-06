@@ -370,9 +370,34 @@ export async function renderEnglishTracker() {
         <h1 class="page-title">English Practice (4 Skills Daily)</h1>
         <p class="page-subtitle">Daily dedicated 1-hour split: Reading, Listening, Writing, and Speaking</p>
       </div>
-      <button class="btn btn-primary btn-sm" id="btn-add-vocab">
-        <i data-lucide="plus" style="width: 14px; height: 14px;"></i>
-        Add Vocabulary
+      <div style="display: flex; gap: 10px;">
+        <button class="btn btn-primary btn-sm" onclick="window.switchView('verbs')">
+          <i data-lucide="brain" style="width: 14px; height: 14px;"></i>
+          Verb Flashcards & Revision Lab
+        </button>
+        <button class="btn btn-secondary btn-sm" id="btn-add-vocab">
+          <i data-lucide="plus" style="width: 14px; height: 14px;"></i>
+          Add Vocabulary
+        </button>
+      </div>
+    </div>
+
+    <!-- Verb Memory & Fast Revision Feature Card -->
+    <div style="background: linear-gradient(135deg, #11283a 0%, #17344c 100%); border: 1px solid rgba(20, 184, 166, 0.35); border-radius: var(--radius-lg); padding: 20px 24px; margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; box-shadow: 0 4px 16px rgba(0,0,0,0.3);">
+      <div style="display: flex; align-items: center; gap: 16px;">
+        <div style="width: 48px; height: 48px; border-radius: var(--radius-md); background-color: rgba(20, 184, 166, 0.15); display: flex; align-items: center; justify-content: center; color: var(--teal-primary); flex-shrink: 0;">
+          <i data-lucide="brain" style="width: 26px; height: 26px;"></i>
+        </div>
+        <div>
+          <h3 style="font-size: 16.5px; font-weight: 700; color: #fff;">Action Verbs & Fast Revision Lab</h3>
+          <p style="font-size: 13px; color: var(--text-secondary); margin-top: 2px;">
+            Master high-impact action verbs with 2 to 3 real-life engineering sentences, mnemonics, 3D flip flashcards, and native audio.
+          </p>
+        </div>
+      </div>
+      <button class="btn btn-primary" onclick="window.switchView('verbs')">
+        <i data-lucide="layers" style="width: 16px; height: 16px;"></i>
+        Launch Verb Lab
       </button>
     </div>
 
