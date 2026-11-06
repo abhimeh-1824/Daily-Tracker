@@ -97,14 +97,26 @@ export async function renderSettings(currentUser) {
         
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px;">
           <div style="background-color: var(--bg-input); padding: 16px; border-radius: var(--radius-md); border: 1px solid var(--border-subtle);">
-            <div style="font-weight: 600; color: #fff; margin-bottom: 6px;">Firebase Connection</div>
+            <div style="font-weight: 600; color: #fff; margin-bottom: 6px;">Firestore Database</div>
             <p style="font-size: 12.5px; color: var(--text-secondary); margin-bottom: 12px;">
-              Your study data is synchronized in real-time with Google Cloud Firestore Enterprise.
+              Project: <code>tidy-marker-fmn89</code><br>
+              Database: <code>Enterprise Firestore</code>
             </p>
             <button class="btn-sm btn-outline" id="btn-test-connection">
               <i data-lucide="activity" style="width: 14px; height: 14px;"></i>
-              Test Connection
+              Test Firestore Connection
             </button>
+          </div>
+
+          <div style="background-color: var(--bg-input); padding: 16px; border-radius: var(--radius-md); border: 1px solid var(--border-subtle);">
+            <div style="font-weight: 600; color: #fff; margin-bottom: 6px;">Firebase Authentication</div>
+            <p style="font-size: 12.5px; color: var(--text-secondary); margin-bottom: 12px; line-height: 1.45;">
+              Enable <strong>Email/Password</strong> provider in your project to sync credentials across all devices.
+            </p>
+            <a href="https://console.firebase.google.com/project/tidy-marker-fmn89/authentication/providers" target="_blank" rel="noopener noreferrer" class="btn-sm btn-outline" style="display: inline-flex; align-items: center; gap: 6px; text-decoration: none;">
+              <i data-lucide="external-link" style="width: 14px; height: 14px;"></i>
+              Open Firebase Auth Console
+            </a>
           </div>
 
           <div style="background-color: var(--bg-input); padding: 16px; border-radius: var(--radius-md); border: 1px solid var(--border-subtle);">

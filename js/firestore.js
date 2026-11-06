@@ -44,25 +44,64 @@ export function handleFirestoreError(error, operationType, path) {
   throw new Error(JSON.stringify(errInfo));
 }
 
-// In-memory / session store for Demo Guest testing
-const demoStorage = {
-  days: {},
-  profile: null
-};
+export function isLocalMode() {
+  return !auth.currentUser;
+}
 
 export function setDemoModeUser(user) {
   window.__DEMO_USER = user;
 }
 
-// Ensure user is signed in or in demo mode
-function getUserId() {
+export function getUserId() {
   if (auth.currentUser?.uid) {
     return auth.currentUser.uid;
   }
   if (window.__DEMO_USER?.uid) {
     return window.__DEMO_USER.uid;
   }
-  throw new Error('User is not authenticated.');
+  try {
+    const saved = localStorage.getItem('study_tracker_session_user');
+    if (saved) {
+      const u = JSON.parse(saved);
+      if (u?.uid) {
+        window.__DEMO_USER = u;
+        return u.uid;
+      }
+    }
+  } catch (e) {
+    console.warn('Session parse error in getUserId:', e);
+  }
+  return 'scholar_local_user';
+}
+
+function getLocalDb(uid) {
+  try {
+    const raw = localStorage.getItem(`study_tracker_local_db_${uid}`);
+    if (raw) {
+      return JSON.parse(raw);
+    }
+  } catch (e) {
+    console.warn('Local DB read error:', e);
+  }
+  return {
+    days: {},
+    profile: {
+      displayName: window.__DEMO_USER?.displayName || '',
+      challengeStartDate: new Date().toISOString().slice(0, 10),
+      targetDailyHours: 8,
+      dsaTopics: {}
+    },
+    verbs: {}
+  };
+}
+
+function saveLocalDb(uid, dbObj) {
+  try {
+    localStorage.setItem(`study_tracker_local_db_${uid}`, JSON.stringify(dbObj));
+    window.dispatchEvent(new CustomEvent('study_tracker_local_update', { detail: { uid } }));
+  } catch (e) {
+    console.warn('Local DB save error:', e);
+  }
 }
 
 /**
@@ -70,8 +109,9 @@ function getUserId() {
  */
 export async function getDayRecord(dateStr) {
   const uid = getUserId();
-  if (!auth.currentUser && window.__DEMO_USER) {
-    return demoStorage.days[dateStr] || null;
+  if (isLocalMode()) {
+    const dbObj = getLocalDb(uid);
+    return dbObj.days?.[dateStr] || null;
   }
 
   const docPath = `users/${uid}/days/${dateStr}`;
@@ -92,13 +132,19 @@ export async function getDayRecord(dateStr) {
  */
 export async function saveDayRecord(dateStr, dayData) {
   const uid = getUserId();
-  if (!auth.currentUser && window.__DEMO_USER) {
-    demoStorage.days[dateStr] = {
+  if (isLocalMode()) {
+    const dbObj = getLocalDb(uid);
+    if (!dbObj.days) dbObj.days = {};
+    const existing = dbObj.days[dateStr] || {};
+    dbObj.days[dateStr] = {
+      ...existing,
       ...dayData,
       date: dateStr,
       userId: uid,
-      updatedAt: new Date().toISOString()
+      updatedAt: new Date().toISOString(),
+      createdAt: existing.createdAt || new Date().toISOString()
     };
+    saveLocalDb(uid, dbObj);
     return true;
   }
 
@@ -132,9 +178,17 @@ export async function saveDayRecord(dateStr, dayData) {
  */
 export function listenDayRecord(dateStr, onData, onError) {
   const uid = getUserId();
-  if (!auth.currentUser && window.__DEMO_USER) {
-    onData(demoStorage.days[dateStr] || null);
-    return () => {};
+  if (isLocalMode()) {
+    const emit = () => {
+      const dbObj = getLocalDb(uid);
+      onData(dbObj.days?.[dateStr] || null);
+    };
+    emit();
+    const handler = () => emit();
+    window.addEventListener('study_tracker_local_update', handler);
+    return () => {
+      window.removeEventListener('study_tracker_local_update', handler);
+    };
   }
 
   const docPath = `users/${uid}/days/${dateStr}`;
@@ -161,8 +215,11 @@ export function listenDayRecord(dateStr, onData, onError) {
  */
 export async function getAllDaysRecords() {
   const uid = getUserId();
-  if (!auth.currentUser && window.__DEMO_USER) {
-    return Object.values(demoStorage.days);
+  if (isLocalMode()) {
+    const dbObj = getLocalDb(uid);
+    const records = Object.values(dbObj.days || {});
+    records.sort((a, b) => (a.date > b.date ? 1 : -1));
+    return records;
   }
 
   const colPath = `users/${uid}/days`;
@@ -184,8 +241,9 @@ export async function getAllDaysRecords() {
  */
 export async function getUserProfile() {
   const uid = getUserId();
-  if (!auth.currentUser && window.__DEMO_USER) {
-    return demoStorage.profile;
+  if (isLocalMode()) {
+    const dbObj = getLocalDb(uid);
+    return dbObj.profile || null;
   }
 
   const docPath = `users/${uid}/settings/profile`;
@@ -206,8 +264,15 @@ export async function getUserProfile() {
  */
 export async function saveUserProfile(profileData) {
   const uid = getUserId();
-  if (!auth.currentUser && window.__DEMO_USER) {
-    demoStorage.profile = { ...(demoStorage.profile || {}), ...profileData, userId: uid };
+  if (isLocalMode()) {
+    const dbObj = getLocalDb(uid);
+    dbObj.profile = {
+      ...(dbObj.profile || {}),
+      ...profileData,
+      userId: uid,
+      updatedAt: new Date().toISOString()
+    };
+    saveLocalDb(uid, dbObj);
     return true;
   }
 
@@ -237,11 +302,18 @@ export async function saveUserProfile(profileData) {
  */
 export async function importBackupData(backupData) {
   const uid = getUserId();
-  if (!auth.currentUser && window.__DEMO_USER) {
-    if (backupData.profile) demoStorage.profile = backupData.profile;
-    if (Array.isArray(backupData.days)) {
-      backupData.days.forEach(d => { if (d.date) demoStorage.days[d.date] = d; });
+  if (isLocalMode()) {
+    const dbObj = getLocalDb(uid);
+    if (backupData.profile) {
+      dbObj.profile = { ...(dbObj.profile || {}), ...backupData.profile, userId: uid };
     }
+    if (Array.isArray(backupData.days)) {
+      if (!dbObj.days) dbObj.days = {};
+      backupData.days.forEach(day => {
+        if (day.date) dbObj.days[day.date] = { ...day, userId: uid };
+      });
+    }
+    saveLocalDb(uid, dbObj);
     return true;
   }
 
@@ -284,8 +356,11 @@ export async function importBackupData(backupData) {
  */
 export async function getUserVerbs() {
   const uid = getUserId();
-  if (!auth.currentUser && window.__DEMO_USER) {
-    return Object.values(demoStorage.verbs || {});
+  if (isLocalMode()) {
+    const dbObj = getLocalDb(uid);
+    const verbs = Object.values(dbObj.verbs || {});
+    verbs.sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
+    return verbs;
   }
 
   const colPath = `users/${uid}/user_verbs`;
@@ -309,15 +384,21 @@ export async function saveUserVerb(verbData) {
   const uid = getUserId();
   const verbId = verbData.id || `verb_${Date.now()}`;
 
-  if (!auth.currentUser && window.__DEMO_USER) {
-    if (!demoStorage.verbs) demoStorage.verbs = {};
-    demoStorage.verbs[verbId] = {
+  if (isLocalMode()) {
+    const dbObj = getLocalDb(uid);
+    if (!dbObj.verbs) dbObj.verbs = {};
+    const existing = dbObj.verbs[verbId] || {};
+    const payload = {
+      ...existing,
       ...verbData,
       id: verbId,
       userId: uid,
-      updatedAt: new Date().toISOString()
+      updatedAt: new Date().toISOString(),
+      createdAt: existing.createdAt || new Date().toISOString()
     };
-    return demoStorage.verbs[verbId];
+    dbObj.verbs[verbId] = payload;
+    saveLocalDb(uid, dbObj);
+    return payload;
   }
 
   const docPath = `users/${uid}/user_verbs/${verbId}`;
@@ -350,9 +431,11 @@ export async function saveUserVerb(verbData) {
  */
 export async function deleteUserVerb(verbId) {
   const uid = getUserId();
-  if (!auth.currentUser && window.__DEMO_USER) {
-    if (demoStorage.verbs) {
-      delete demoStorage.verbs[verbId];
+  if (isLocalMode()) {
+    const dbObj = getLocalDb(uid);
+    if (dbObj.verbs && dbObj.verbs[verbId]) {
+      delete dbObj.verbs[verbId];
+      saveLocalDb(uid, dbObj);
     }
     return true;
   }
@@ -372,10 +455,13 @@ export async function deleteUserVerb(verbId) {
  */
 export async function updateUserVerbMastery(verbId, isMastered) {
   const uid = getUserId();
-  if (!auth.currentUser && window.__DEMO_USER) {
-    if (demoStorage.verbs && demoStorage.verbs[verbId]) {
-      demoStorage.verbs[verbId].mastered = isMastered;
-      demoStorage.verbs[verbId].status = isMastered ? 'mastered' : 'learning';
+  if (isLocalMode()) {
+    const dbObj = getLocalDb(uid);
+    if (dbObj.verbs && dbObj.verbs[verbId]) {
+      dbObj.verbs[verbId].mastered = isMastered;
+      dbObj.verbs[verbId].status = isMastered ? 'mastered' : 'learning';
+      dbObj.verbs[verbId].updatedAt = new Date().toISOString();
+      saveLocalDb(uid, dbObj);
     }
     return true;
   }

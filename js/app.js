@@ -28,7 +28,7 @@ import {
   renderGATETracker
 } from './subject-trackers.js';
 import { renderSettings } from './settings.js';
-import { setDemoModeUser } from './firestore.js';
+import { setDemoModeUser, isLocalMode } from './firestore.js';
 import { renderVerbFlashcards } from './verbs.js';
 
 let currentActiveView = 'dashboard';
@@ -65,6 +65,7 @@ document.addEventListener('DOMContentLoaded', () => {
  * Handle User Signed In
  */
 async function onUserSignedIn(user) {
+  setDemoModeUser(user);
   document.getElementById('auth-view').style.display = 'none';
   document.getElementById('app-shell').style.display = 'flex';
 
@@ -78,6 +79,21 @@ async function onUserSignedIn(user) {
   if (emailLabel) emailLabel.textContent = user.email || '';
   if (avatarLabel) avatarLabel.textContent = displayName.charAt(0).toUpperCase();
 
+  // Update sync status indicator
+  const syncLabel = document.getElementById('sync-label');
+  const syncDot = document.getElementById('sync-dot');
+  if (syncLabel && syncDot) {
+    if (isLocalMode()) {
+      syncLabel.textContent = 'Local Storage (Enable Email/Password in Console to Sync)';
+      syncDot.style.background = '#f59e0b';
+      syncDot.style.boxShadow = '0 0 8px rgba(245, 158, 11, 0.6)';
+    } else {
+      syncLabel.textContent = 'Synced with Cloud Firestore';
+      syncDot.style.background = 'var(--emerald-success)';
+      syncDot.style.boxShadow = '0 0 8px rgba(16, 185, 129, 0.6)';
+    }
+  }
+
   // Load today's tracking data
   const todayISO = formatDateISO(new Date());
   await loadDayData(todayISO);
@@ -90,6 +106,7 @@ async function onUserSignedIn(user) {
  * Handle User Signed Out
  */
 function onUserSignedOut() {
+  setDemoModeUser(null);
   document.getElementById('app-shell').style.display = 'none';
   document.getElementById('auth-view').style.display = 'flex';
 }
