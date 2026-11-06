@@ -1,0 +1,188 @@
+/* ==========================================================================
+   Personal Study Tracker - Responsive & Mobile Layout
+   ========================================================================== */
+
+/* Mobile Bottom Navigation Bar (Hidden by default on desktop) */
+.mobile-bottom-nav {
+  display: none;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 64px;
+  background-color: rgba(17, 24, 39, 0.95);
+  backdrop-filter: blur(16px);
+  border-top: 1px solid var(--border-subtle);
+  z-index: 200;
+  padding: 0 12px;
+  justify-content: space-around;
+  align-items: center;
+}
+
+.mobile-nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  color: var(--text-muted);
+  font-size: 10.5px;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: var(--radius-sm);
+  transition: color var(--transition-fast);
+  cursor: pointer;
+}
+
+.mobile-nav-item.active {
+  color: var(--teal-primary);
+}
+
+.mobile-nav-item svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* Sidebar Drawer Backdrop on Mobile */
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background-color: rgba(5, 8, 14, 0.7);
+  backdrop-filter: blur(4px);
+  z-index: 99;
+}
+
+.sidebar-overlay.active {
+  display: block;
+}
+
+/* Responsive Breakpoints */
+@media (max-width: 1024px) {
+  .sidebar {
+    transform: translateX(-100%);
+    box-shadow: var(--shadow-lg);
+  }
+
+  .sidebar.open {
+    transform: translateX(0);
+  }
+
+  .main-wrapper {
+    margin-left: 0;
+  }
+
+  .mobile-menu-btn {
+    display: inline-flex;
+  }
+
+  .charts-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .topbar {
+    padding: 0 16px;
+    height: 64px;
+  }
+
+  .content-area {
+    padding: 16px;
+    padding-bottom: 80px; /* Room for mobile bottom nav */
+  }
+
+  .mobile-bottom-nav {
+    display: flex;
+  }
+
+  .page-title {
+    font-size: 20px;
+  }
+
+  .motivation-banner {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 16px;
+    gap: 12px;
+  }
+
+  .activity-card {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .activity-controls {
+    justify-content: space-between;
+    width: 100%;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .status-btn-group {
+    flex: 1;
+    justify-content: space-between;
+  }
+
+  .status-opt-btn {
+    flex: 1;
+    text-align: center;
+    padding: 6px 4px;
+    font-size: 11px;
+  }
+
+  .challenge-stats {
+    gap: 14px;
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .challenge-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+
+  .challenge-day-card {
+    padding: 10px 6px;
+  }
+
+  .day-number {
+    font-size: 14px;
+  }
+
+  .stat-card {
+    padding: 16px;
+  }
+
+  .stat-value {
+    font-size: 22px;
+  }
+
+  .date-navigator {
+    padding: 2px 4px;
+  }
+
+  .date-display-label {
+    min-width: 90px;
+    font-size: 12px;
+  }
+
+  .sync-status span:last-child {
+    display: none;
+  }
+
+  .auth-card {
+    padding: 24px 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .challenge-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .category-progress-grid {
+    grid-template-columns: 1fr;
+  }
+}

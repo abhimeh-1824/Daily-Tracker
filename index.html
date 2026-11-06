@@ -1,0 +1,414 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>Personal Study Tracker</title>
+    <meta name="description" content="A production-grade personal study tracker dashboard with daily timetable management, 30-day challenge, subject progress tracking, and Firebase sync." />
+    <meta property="og:title" content="Personal Study Tracker" />
+    <meta property="og:description" content="A production-grade personal study tracker dashboard with daily timetable management, 30-day challenge, subject progress tracking, and Firebase sync." />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <!-- Google Fonts for crisp typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="stylesheet" href="/css/dashboard.css" />
+    <link rel="stylesheet" href="/css/responsive.css" />
+  </head>
+  <body>
+    <!-- AUTHENTICATION SCREEN (Shown when logged out) -->
+    <div id="auth-view" class="auth-page-container" style="display: none;">
+      <div class="auth-card">
+        <div class="auth-header">
+          <div class="auth-brand-logo">
+            <div class="brand-icon">
+              <i data-lucide="compass" style="width: 22px; height: 22px;"></i>
+            </div>
+            <span>StudyTracker</span>
+          </div>
+          <h2 style="font-size: 20px; font-weight: 700; color: #fff;">Consistency Dashboard</h2>
+          <p style="font-size: 13px; color: var(--text-secondary); margin-top: 4px;">Sign in to sync your study timetable and 30-day streak</p>
+        </div>
+
+        <!-- Quick Sign-In with Google (Fully provisioned and ready) -->
+        <button type="button" id="btn-google-auth" class="btn btn-secondary" style="width: 100%; padding: 11px; margin-bottom: 16px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 10px; background-color: var(--bg-tertiary);">
+          <svg width="18" height="18" viewBox="0 0 24 24">
+            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+          </svg>
+          Continue with Google
+        </button>
+
+        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
+          <div style="flex: 1; height: 1px; background-color: var(--border-subtle);"></div>
+          <span style="font-size: 11px; text-transform: uppercase; color: var(--text-muted); font-weight: 600;">or email/password</span>
+          <div style="flex: 1; height: 1px; background-color: var(--border-subtle);"></div>
+        </div>
+
+        <div class="auth-tabs">
+          <div class="auth-tab active" id="tab-login">Sign In</div>
+          <div class="auth-tab" id="tab-signup">Register</div>
+        </div>
+
+        <!-- Provider Notice Banner -->
+        <div id="auth-provider-notice" style="display: none; background-color: rgba(245, 158, 11, 0.12); border: 1px solid rgba(245, 158, 11, 0.35); border-radius: var(--radius-md); padding: 12px; margin-bottom: 16px; font-size: 12px; color: #fbbf24; line-height: 1.4;">
+          <strong>Notice:</strong> Email/Password sign-in requires enabling in Firebase Console. Please click <strong>Continue with Google</strong> above for immediate sign-in!
+        </div>
+
+        <!-- Login Form -->
+        <form id="form-login">
+          <div class="form-group">
+            <label class="form-label" for="login-email">Email Address</label>
+            <div class="form-input-wrapper">
+              <i data-lucide="mail" class="form-input-icon"></i>
+              <input type="email" id="login-email" class="form-input-with-icon" placeholder="name@example.com" required />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+              <label class="form-label" for="login-password" style="margin-bottom: 0;">Password</label>
+              <button type="button" id="btn-forgot-password" style="font-size: 12px; color: var(--teal-primary);">Forgot?</button>
+            </div>
+            <div class="form-input-wrapper">
+              <i data-lucide="lock" class="form-input-icon"></i>
+              <input type="password" id="login-password" class="form-input-with-icon" placeholder="••••••••" required />
+              <button type="button" class="password-toggle-btn" title="Toggle password visibility">
+                <i data-lucide="eye" style="width: 16px; height: 16px;"></i>
+              </button>
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-primary" style="width: 100%; padding: 11px; margin-top: 6px;">
+            Sign In with Email
+          </button>
+
+          <button type="button" id="btn-demo-guest" class="btn btn-outline btn-sm" style="width: 100%; margin-top: 14px;">
+            <i data-lucide="user-check" style="width: 14px; height: 14px; color: var(--teal-primary);"></i>
+            Enter as Demo Guest Scholar
+          </button>
+        </form>
+
+        <!-- Signup Form -->
+        <form id="form-signup" style="display: none;">
+          <div class="form-group">
+            <label class="form-label" for="signup-name">Full Name</label>
+            <div class="form-input-wrapper">
+              <i data-lucide="user" class="form-input-icon"></i>
+              <input type="text" id="signup-name" class="form-input-with-icon" placeholder="e.g. Abhishek Mehra" required />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="signup-email">Email Address</label>
+            <div class="form-input-wrapper">
+              <i data-lucide="mail" class="form-input-icon"></i>
+              <input type="email" id="signup-email" class="form-input-with-icon" placeholder="name@example.com" required />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="signup-password">Password</label>
+            <div class="form-input-wrapper">
+              <i data-lucide="lock" class="form-input-icon"></i>
+              <input type="password" id="signup-password" class="form-input-with-icon" placeholder="At least 6 characters" minlength="6" required />
+              <button type="button" class="password-toggle-btn" title="Toggle password visibility">
+                <i data-lucide="eye" style="width: 16px; height: 16px;"></i>
+              </button>
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-primary" style="width: 100%; padding: 11px; margin-top: 6px;">
+            Create Free Account
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- MAIN APPLICATION SHELL (Shown when logged in) -->
+    <div id="app-shell" class="app-shell" style="display: none;">
+      <!-- Mobile Sidebar Overlay -->
+      <div id="sidebar-overlay" class="sidebar-overlay"></div>
+
+      <!-- Left Sidebar Navigation -->
+      <aside id="sidebar" class="sidebar">
+        <div class="sidebar-header">
+          <div class="brand-logo">
+            <div class="brand-icon">
+              <i data-lucide="compass" style="width: 20px; height: 20px;"></i>
+            </div>
+            <span>StudyTracker</span>
+          </div>
+        </div>
+
+        <nav class="sidebar-nav">
+          <div class="nav-section-title">Core Tracking</div>
+          <div class="nav-item active" data-view="dashboard">
+            <div class="nav-icon"><i data-lucide="layout-dashboard"></i></div>
+            <span>Dashboard</span>
+          </div>
+          <div class="nav-item" data-view="tracker">
+            <div class="nav-icon"><i data-lucide="check-square"></i></div>
+            <span>Daily Tracker</span>
+          </div>
+          <div class="nav-item" data-view="timetable">
+            <div class="nav-icon"><i data-lucide="calendar"></i></div>
+            <span>Weekly Timetable</span>
+          </div>
+
+          <div class="nav-section-title">Focus Trackers</div>
+          <div class="nav-item" data-view="dsa">
+            <div class="nav-icon"><i data-lucide="code-2"></i></div>
+            <span>DSA (JavaScript)</span>
+          </div>
+          <div class="nav-item" data-view="english">
+            <div class="nav-icon"><i data-lucide="languages"></i></div>
+            <span>English Practice</span>
+          </div>
+          <div class="nav-item" data-view="gate">
+            <div class="nav-icon"><i data-lucide="graduation-cap"></i></div>
+            <span>GATE DA Tracker</span>
+          </div>
+
+          <div class="nav-section-title">Consistency & Insights</div>
+          <div class="nav-item" data-view="challenge">
+            <div class="nav-icon"><i data-lucide="flame"></i></div>
+            <span>30-Day Challenge</span>
+          </div>
+          <div class="nav-item" data-view="analytics">
+            <div class="nav-icon"><i data-lucide="bar-chart-3"></i></div>
+            <span>Analytics</span>
+          </div>
+          <div class="nav-item" data-view="settings">
+            <div class="nav-icon"><i data-lucide="settings"></i></div>
+            <span>Settings & Data</span>
+          </div>
+        </nav>
+
+        <div class="sidebar-footer">
+          <div class="user-mini-card">
+            <div class="user-avatar" id="sidebar-user-avatar">A</div>
+            <div class="user-details">
+              <div class="user-name" id="sidebar-user-name">Abhishek</div>
+              <div class="user-email" id="sidebar-user-email">abhishek@study.internal</div>
+            </div>
+            <button class="btn-icon" id="sidebar-logout-btn" title="Sign Out">
+              <i data-lucide="log-out" style="width: 17px; height: 17px; color: var(--rose-danger);"></i>
+            </button>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Main App Content Area -->
+      <div class="main-wrapper">
+        <!-- Sticky Topbar -->
+        <header class="topbar">
+          <div class="topbar-left">
+            <button class="btn-icon mobile-menu-btn" id="mobile-menu-btn" title="Open Menu">
+              <i data-lucide="menu" style="width: 20px; height: 20px;"></i>
+            </button>
+
+            <!-- Date Navigator -->
+            <div class="date-navigator">
+              <button class="btn-icon" id="btn-prev-day" style="width: 28px; height: 28px;" title="Previous Day">
+                <i data-lucide="chevron-left" style="width: 16px; height: 16px;"></i>
+              </button>
+              
+              <div style="position: relative; display: flex; align-items: center; cursor: pointer;">
+                <span class="date-display-label" id="current-date-label">Today</span>
+                <input type="date" id="current-date-input" style="position: absolute; opacity: 0; width: 100%; height: 100%; cursor: pointer;" />
+              </div>
+
+              <button class="btn-icon" id="btn-next-day" style="width: 28px; height: 28px;" title="Next Day">
+                <i data-lucide="chevron-right" style="width: 16px; height: 16px;"></i>
+              </button>
+
+              <button class="btn btn-secondary btn-sm" id="btn-today" style="margin-left: 4px; padding: 4px 10px; font-size: 11.5px;">
+                Today
+              </button>
+            </div>
+          </div>
+
+          <div class="topbar-right">
+            <!-- Firestore Sync Status Indicator -->
+            <div class="sync-status" id="sync-container" title="Cloud Firestore Real-Time Sync Status">
+              <div class="sync-dot" id="sync-dot"></div>
+              <span id="sync-label">Synced with Cloud Firestore</span>
+            </div>
+          </div>
+        </header>
+
+        <!-- Dynamic Views -->
+        <main class="content-area">
+          <!-- 1. Dashboard View -->
+          <section id="dashboard-view" class="view-pane active"></section>
+
+          <!-- 2. Daily Tracker View -->
+          <section id="tracker-view" class="view-pane">
+            <div class="page-header">
+              <div>
+                <h1 class="page-title">Daily Study Timetable Tracker</h1>
+                <p class="page-subtitle">Log status, time spent, and learning notes for each scheduled block</p>
+              </div>
+              <div style="display: flex; gap: 12px; align-items: center;">
+                <div style="text-align: right;">
+                  <span id="tracker-completion-percent" style="font-size: 22px; font-weight: 800; color: var(--teal-primary);">0%</span>
+                  <div id="tracker-stats-summary" style="font-size: 11.5px; color: var(--text-muted);">0 Done • 0h study time</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Top Progress Bar -->
+            <div class="card" style="margin-bottom: 24px; padding: 14px 20px;">
+              <div class="progress-track" style="height: 10px;">
+                <div id="tracker-completion-bar" class="progress-fill" style="width: 0%;"></div>
+              </div>
+            </div>
+
+            <!-- Time Blocks Container -->
+            <div id="tracker-blocks-container"></div>
+          </section>
+
+          <!-- 3. Weekly Timetable View -->
+          <section id="timetable-view" class="view-pane"></section>
+
+          <!-- 4. DSA Tracker View -->
+          <section id="dsa-view" class="view-pane"></section>
+
+          <!-- 5. English Tracker View -->
+          <section id="english-view" class="view-pane"></section>
+
+          <!-- 6. GATE DA Tracker View -->
+          <section id="gate-view" class="view-pane"></section>
+
+          <!-- 7. 30-Day Challenge View -->
+          <section id="challenge-view" class="view-pane"></section>
+
+          <!-- 8. Analytics View -->
+          <section id="analytics-view" class="view-pane"></section>
+
+          <!-- 9. Settings View -->
+          <section id="settings-view" class="view-pane"></section>
+        </main>
+      </div>
+
+      <!-- Mobile Bottom Navigation Bar -->
+      <nav class="mobile-bottom-nav">
+        <div class="mobile-nav-item active" data-view="dashboard">
+          <i data-lucide="layout-dashboard"></i>
+          <span>Home</span>
+        </div>
+        <div class="mobile-nav-item" data-view="tracker">
+          <i data-lucide="check-square"></i>
+          <span>Tracker</span>
+        </div>
+        <div class="mobile-nav-item" data-view="timetable">
+          <i data-lucide="calendar"></i>
+          <span>Week</span>
+        </div>
+        <div class="mobile-nav-item" data-view="challenge">
+          <i data-lucide="flame"></i>
+          <span>30-Day</span>
+        </div>
+        <div class="mobile-nav-item" data-view="analytics">
+          <i data-lucide="bar-chart-3"></i>
+          <span>Insights</span>
+        </div>
+      </nav>
+    </div>
+
+    <!-- MODAL: Activity Notes -->
+    <div id="activity-notes-modal" class="modal-backdrop">
+      <div class="modal-dialog">
+        <div class="modal-header">
+          <h3 class="modal-title" id="modal-activity-title">Activity Notes</h3>
+          <button class="btn-icon modal-close-btn">&times;</button>
+        </div>
+        <div class="modal-body">
+          <label class="form-label">Notes, Key Learnings & Problem Links</label>
+          <textarea 
+            id="modal-activity-notes-input" 
+            rows="6" 
+            style="width: 100%; resize: vertical;" 
+            placeholder="Document algorithms explored, questions solved, vocabulary notes, or challenges..."
+          ></textarea>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary modal-close-btn">Cancel</button>
+          <button class="btn btn-primary" id="modal-save-notes-btn">Save Notes</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL: Edit Weekly Timetable Topics -->
+    <div id="timetable-edit-modal" class="modal-backdrop">
+      <div class="modal-dialog">
+        <div class="modal-header">
+          <h3 class="modal-title">Customize Weekly Timetable</h3>
+          <button class="btn-icon modal-close-btn">&times;</button>
+        </div>
+        <div class="modal-body">
+          <div class="form-group">
+            <label class="form-label">Select Day</label>
+            <select id="modal-timetable-day-select" style="width: 100%;">
+              <option value="Monday">Monday</option>
+              <option value="Tuesday">Tuesday</option>
+              <option value="Wednesday">Wednesday</option>
+              <option value="Thursday">Thursday</option>
+              <option value="Friday">Friday</option>
+              <option value="Saturday">Saturday</option>
+              <option value="Sunday">Sunday</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">DSA Topic (JavaScript)</label>
+            <input type="text" id="modal-tt-dsa" style="width: 100%;" />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">JavaScript / TypeScript Topic</label>
+            <input type="text" id="modal-tt-js" style="width: 100%;" />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Framework (React / Node / Project)</label>
+            <input type="text" id="modal-tt-framework" style="width: 100%;" />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">GATE Python Topic</label>
+            <input type="text" id="modal-tt-python" style="width: 100%;" />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">GATE Aptitude Topic</label>
+            <input type="text" id="modal-tt-aptitude" style="width: 100%;" />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Advanced Prep / System Design Topic</label>
+            <input type="text" id="modal-tt-advanced" style="width: 100%;" />
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary modal-close-btn">Cancel</button>
+          <button class="btn btn-primary" id="modal-save-timetable-btn">Save Timetable Changes</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Toast Notifications Container -->
+    <div id="toast-container"></div>
+
+    <!-- Application Module Script -->
+    <script type="module" src="/js/app.js"></script>
+  </body>
+</html>

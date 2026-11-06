@@ -1,0 +1,72 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Global Safety Net: Default-deny catch-all
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isValidDateId(id) {
+      return id is string && id.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$');
+    }
+
+    function isValidSettingId(id) {
+      return id is string && id.size() <= 64 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    // Study Tracker Days subcollection
+    match /users/{userId}/days/{dateId} {
+      allow read: if isOwner(userId);
+      allow create: if isOwner(userId) 
+        && isValidDateId(dateId)
+        && incoming().userId == request.auth.uid
+        && incoming().date is string
+        && incoming().completionPercentage is number
+        && incoming().completionPercentage >= 0
+        && incoming().completionPercentage <= 100
+        && incoming().createdAt == request.time
+        && incoming().updatedAt == request.time;
+      allow update: if isOwner(userId)
+        && isValidDateId(dateId)
+        && incoming().userId == existing().userId
+        && incoming().createdAt == existing().createdAt
+        && incoming().updatedAt == request.time
+        && incoming().completionPercentage is number
+        && incoming().completionPercentage >= 0
+        && incoming().completionPercentage <= 100;
+      allow delete: if isOwner(userId) && isValidDateId(dateId);
+    }
+
+    // User Profile & Settings subcollection
+    match /users/{userId}/settings/{settingId} {
+      allow read: if isOwner(userId);
+      allow create: if isOwner(userId)
+        && isValidSettingId(settingId)
+        && incoming().userId == request.auth.uid
+        && incoming().createdAt == request.time
+        && incoming().updatedAt == request.time;
+      allow update: if isOwner(userId)
+        && isValidSettingId(settingId)
+        && incoming().userId == existing().userId
+        && incoming().createdAt == existing().createdAt
+        && incoming().updatedAt == request.time;
+      allow delete: if isOwner(userId) && isValidSettingId(settingId);
+    }
+  }
+}

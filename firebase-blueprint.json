@@ -1,0 +1,126 @@
+{
+  "entities": {
+    "dayRecord": {
+      "title": "Day Record",
+      "description": "Daily study tracker record containing all logged activities, status, completion %, notes, and timestamps for a specific date.",
+      "type": "object",
+      "properties": {
+        "date": {
+          "type": "string",
+          "description": "Date of the record in YYYY-MM-DD format",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+        },
+        "userId": {
+          "type": "string",
+          "description": "Firebase UID of the user owning this record"
+        },
+        "completionPercentage": {
+          "type": "number",
+          "description": "Daily task completion rate (0-100)"
+        },
+        "totalActivities": {
+          "type": "number",
+          "description": "Total number of scheduled activities"
+        },
+        "completedActivities": {
+          "type": "number",
+          "description": "Count of activities marked as Done"
+        },
+        "partialActivities": {
+          "type": "number",
+          "description": "Count of activities marked as Partial"
+        },
+        "skippedActivities": {
+          "type": "number",
+          "description": "Count of activities marked as Skipped"
+        },
+        "totalMinutesSpent": {
+          "type": "number",
+          "description": "Total actual study minutes logged for the day"
+        },
+        "activities": {
+          "type": "array",
+          "description": "Array of activity records with status, time spent, and notes"
+        },
+        "categoryProgress": {
+          "type": "object",
+          "description": "Progress breakdown by category (jobPrep, dsa, english, gate, morning, advanced)"
+        },
+        "notes": {
+          "type": "string",
+          "description": "Daily summary or reflection notes",
+          "maxLength": 5000
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Timestamp when the day record was created"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Timestamp when the day record was last updated"
+        }
+      },
+      "required": ["date", "userId", "completionPercentage", "createdAt", "updatedAt"]
+    },
+    "userProfile": {
+      "title": "User Profile & Settings",
+      "description": "Stores user settings, preferences, 30-day challenge config, and timetable custom overrides.",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "Firebase UID matching request.auth.uid"
+        },
+        "email": {
+          "type": "string",
+          "description": "User email address"
+        },
+        "displayName": {
+          "type": "string",
+          "description": "User display name",
+          "maxLength": 100
+        },
+        "challengeStartDate": {
+          "type": "string",
+          "description": "Starting date for current 30-day consistency challenge",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+        },
+        "targetDailyHours": {
+          "type": "number",
+          "description": "Target study hours per day"
+        },
+        "customTimetable": {
+          "type": "object",
+          "description": "Custom subject rotations or modified activity schedules"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Account setup timestamp"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Last profile update timestamp"
+        }
+      },
+      "required": ["userId", "createdAt", "updatedAt"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}/days/{dateId}": {
+      "schema": {
+        "$ref": "#/entities/dayRecord"
+      },
+      "description": "Daily study tracking records for each user by date"
+    },
+    "/users/{userId}/settings/{settingId}": {
+      "schema": {
+        "$ref": "#/entities/userProfile"
+      },
+      "description": "User settings, challenge start date, and preferences"
+    }
+  }
+}

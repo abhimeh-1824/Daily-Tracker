@@ -1,0 +1,6 @@
+{
+  "name": "Personal Study Tracker",
+  "description": "A production-grade personal study tracker dashboard with daily timetable management, 30-day challenge, subject progress tracking, and Firebase sync.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
