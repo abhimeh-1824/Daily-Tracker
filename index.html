@@ -40,17 +40,6 @@
           <div class="auth-tab" id="tab-signup">Register</div>
         </div>
 
-        <!-- Firebase Email/Password Provider Notice -->
-        <div class="firebase-provider-tip" style="background: rgba(14, 165, 233, 0.08); border: 1px solid rgba(14, 165, 233, 0.25); border-radius: 8px; padding: 10px 12px; margin-bottom: 16px; font-size: 12px; line-height: 1.45; color: var(--text-secondary);">
-          <div style="display: flex; align-items: flex-start; gap: 8px;">
-            <i data-lucide="info" style="width: 16px; height: 16px; color: var(--teal-primary); flex-shrink: 0; margin-top: 2px;"></i>
-            <div>
-              <div style="color: #fff; font-weight: 600; margin-bottom: 2px;">Firebase Cloud Authentication</div>
-              <div>To enable cross-device cloud sync, enable <strong>Email/Password</strong> under <a href="https://console.firebase.google.com/project/tidy-marker-fmn89/authentication/providers" target="_blank" rel="noopener noreferrer" style="color: var(--teal-primary); text-decoration: underline; font-weight: 600;">Firebase Console &gt; Sign-in providers</a> (1-click toggle). You can also sign in right now in offline/local mode!</div>
-            </div>
-          </div>
-        </div>
-
         <!-- Login Form -->
         <form id="form-login">
           <div class="form-group">
@@ -75,13 +64,8 @@
             </div>
           </div>
 
-          <button type="submit" class="btn btn-primary" style="width: 100%; padding: 11px; margin-top: 6px;">
+          <button type="submit" class="btn btn-primary" style="width: 100%; padding: 11px; margin-top: 10px;">
             Sign In with Email
-          </button>
-
-          <button type="button" id="btn-demo-guest" class="btn btn-outline btn-sm" style="width: 100%; margin-top: 14px;">
-            <i data-lucide="user-check" style="width: 14px; height: 14px; color: var(--teal-primary);"></i>
-            Enter as Demo Guest Scholar
           </button>
         </form>
 
@@ -230,10 +214,10 @@
           </div>
 
           <div class="topbar-right">
-            <!-- Firestore Sync Status Indicator -->
-            <div class="sync-status" id="sync-container" title="Cloud Firestore Real-Time Sync Status">
+            <!-- Sync Status Indicator -->
+            <div class="sync-status" id="sync-container" title="All changes saved">
               <div class="sync-dot" id="sync-dot"></div>
-              <span id="sync-label">Synced with Cloud Firestore</span>
+              <span id="sync-label">All changes saved</span>
             </div>
           </div>
         </header>

@@ -83,15 +83,9 @@ async function onUserSignedIn(user) {
   const syncLabel = document.getElementById('sync-label');
   const syncDot = document.getElementById('sync-dot');
   if (syncLabel && syncDot) {
-    if (isLocalMode()) {
-      syncLabel.textContent = 'Local Storage (Enable Email/Password in Console to Sync)';
-      syncDot.style.background = '#f59e0b';
-      syncDot.style.boxShadow = '0 0 8px rgba(245, 158, 11, 0.6)';
-    } else {
-      syncLabel.textContent = 'Synced with Cloud Firestore';
-      syncDot.style.background = 'var(--emerald-success)';
-      syncDot.style.boxShadow = '0 0 8px rgba(16, 185, 129, 0.6)';
-    }
+    syncLabel.textContent = 'All changes saved';
+    syncDot.style.background = 'var(--emerald-success)';
+    syncDot.style.boxShadow = '0 0 8px rgba(16, 185, 129, 0.4)';
   }
 
   // Load today's tracking data
@@ -369,21 +363,6 @@ function setupAuthUI() {
       if (email) {
         await resetPassword(email);
       }
-    };
-  }
-
-  // Demo Guest Scholar Login
-  const demoGuestBtn = document.getElementById('btn-demo-guest');
-  if (demoGuestBtn) {
-    demoGuestBtn.onclick = () => {
-      const guestUser = {
-        uid: 'demo_scholar_uid_2026',
-        displayName: 'Abhishek Mehra',
-        email: 'abhishekmehra1245@gmail.com'
-      };
-      setDemoModeUser(guestUser);
-      showToast('Entering as Demo Guest Scholar...', 'success');
-      onUserSignedIn(guestUser);
     };
   }
 

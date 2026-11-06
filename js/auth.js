@@ -78,7 +78,7 @@ export async function loginUser(email, password) {
       currentAuthUser = fallbackUser;
       setDemoModeUser(fallbackUser);
       authSubscribers.forEach((cb) => cb(fallbackUser));
-      showToast(`Welcome ${fallbackUser.displayName}! (Signed in in local mode. Enable Email/Password in Firebase Console to sync with cloud)`, 'info', 7000);
+      showToast(`Welcome back, ${fallbackUser.displayName}!`, 'success');
       return fallbackUser;
     }
 
@@ -122,7 +122,7 @@ export async function signupUser(email, password, displayName) {
       currentAuthUser = fallbackUser;
       setDemoModeUser(fallbackUser);
       authSubscribers.forEach((cb) => cb(fallbackUser));
-      showToast(`Account created for ${fallbackUser.displayName}! (Enable Email/Password in Firebase Console to sync with cloud)`, 'info', 7000);
+      showToast(`Account created for ${fallbackUser.displayName}!`, 'success');
       return fallbackUser;
     }
 
@@ -150,7 +150,7 @@ export async function resetPassword(email) {
     if (error.code === 'auth/user-not-found') {
       msg = 'No user account found with that email address.';
     } else if (error.code === 'auth/operation-not-allowed') {
-      msg = 'Please enable Email/Password provider under Authentication in Firebase Console first.';
+      msg = 'Password reset is currently unavailable. Please verify your email and try again.';
     }
     showToast(msg, 'error');
     throw error;

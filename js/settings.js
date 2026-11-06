@@ -1,6 +1,5 @@
 import { getUserProfile, saveUserProfile, getAllDaysRecords, importBackupData } from './firestore.js';
 import { exportToCSV, exportToJSON, showToast, refreshIcons, formatDateReadable } from './utils.js';
-import { testConnection } from './firebase-config.js';
 
 export async function renderSettings(currentUser) {
   const container = document.getElementById('settings-view');
@@ -88,45 +87,42 @@ export async function renderSettings(currentUser) {
         </div>
       </div>
 
-      <!-- Cloud Sync & Vercel Deployment Info -->
+      <!-- Study Habits & Preferences -->
       <div class="card" style="grid-column: 1 / -1;">
         <h3 style="font-size: 16px; font-weight: 700; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
-          <i data-lucide="cloud" style="width: 18px; height: 18px; color: var(--teal-primary);"></i>
-          Cloud Connection & Vercel Deployment Guide
+          <i data-lucide="sliders" style="width: 18px; height: 18px; color: var(--teal-primary);"></i>
+          Study Dashboard & Focus Preferences
         </h3>
         
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px;">
           <div style="background-color: var(--bg-input); padding: 16px; border-radius: var(--radius-md); border: 1px solid var(--border-subtle);">
-            <div style="font-weight: 600; color: #fff; margin-bottom: 6px;">Firestore Database</div>
-            <p style="font-size: 12.5px; color: var(--text-secondary); margin-bottom: 12px;">
-              Project: <code>tidy-marker-fmn89</code><br>
-              Database: <code>Enterprise Firestore</code>
+            <div style="font-weight: 600; color: #fff; margin-bottom: 6px;">Daily Motivation & Streaks</div>
+            <p style="font-size: 12.5px; color: var(--text-secondary); margin-bottom: 10px;">
+              Dynamic motivational quotes and streak celebrations across your daily timetable.
             </p>
-            <button class="btn-sm btn-outline" id="btn-test-connection">
-              <i data-lucide="activity" style="width: 14px; height: 14px;"></i>
-              Test Firestore Connection
-            </button>
+            <div style="font-size: 12px; color: var(--emerald-success); font-weight: 600; display: flex; align-items: center; gap: 6px;">
+              <i data-lucide="check-circle-2" style="width: 14px; height: 14px;"></i> Active
+            </div>
           </div>
 
           <div style="background-color: var(--bg-input); padding: 16px; border-radius: var(--radius-md); border: 1px solid var(--border-subtle);">
-            <div style="font-weight: 600; color: #fff; margin-bottom: 6px;">Firebase Authentication</div>
-            <p style="font-size: 12.5px; color: var(--text-secondary); margin-bottom: 12px; line-height: 1.45;">
-              Enable <strong>Email/Password</strong> provider in your project to sync credentials across all devices.
+            <div style="font-weight: 600; color: #fff; margin-bottom: 6px;">Instant Auto-Save</div>
+            <p style="font-size: 12.5px; color: var(--text-secondary); margin-bottom: 10px;">
+              Your activities and study hours save automatically as you check off tasks.
             </p>
-            <a href="https://console.firebase.google.com/project/tidy-marker-fmn89/authentication/providers" target="_blank" rel="noopener noreferrer" class="btn-sm btn-outline" style="display: inline-flex; align-items: center; gap: 6px; text-decoration: none;">
-              <i data-lucide="external-link" style="width: 14px; height: 14px;"></i>
-              Open Firebase Auth Console
-            </a>
+            <div style="font-size: 12px; color: var(--emerald-success); font-weight: 600; display: flex; align-items: center; gap: 6px;">
+              <i data-lucide="check-circle-2" style="width: 14px; height: 14px;"></i> Active
+            </div>
           </div>
 
           <div style="background-color: var(--bg-input); padding: 16px; border-radius: var(--radius-md); border: 1px solid var(--border-subtle);">
-            <div style="font-weight: 600; color: #fff; margin-bottom: 6px;">Deploying on Vercel</div>
-            <p style="font-size: 12.5px; color: var(--text-secondary); line-height: 1.4;">
-              1. Push this repository to GitHub.<br>
-              2. Import project on Vercel.<br>
-              3. Framework Preset: <code>Vite</code> or <code>Other</code>.<br>
-              4. Click Deploy. Zero server dependencies needed!
+            <div style="font-weight: 600; color: #fff; margin-bottom: 6px;">Study Tracker Version</div>
+            <p style="font-size: 12.5px; color: var(--text-secondary); margin-bottom: 10px;">
+              Personal Study Tracker v1.0.0
             </p>
+            <div style="font-size: 12px; color: var(--text-muted);">
+              All trackers and revision labs ready.
+            </div>
           </div>
         </div>
       </div>
@@ -154,7 +150,7 @@ export async function renderSettings(currentUser) {
       const nameLabel = document.getElementById('sidebar-user-name');
       if (nameLabel) nameLabel.textContent = newName || currentUser?.email;
 
-      showToast('Settings saved to Firestore!', 'success');
+      showToast('Settings saved successfully!', 'success');
     };
   }
 
@@ -240,7 +236,7 @@ export async function renderSettings(currentUser) {
             return;
           }
 
-          if (confirm(`Restore ${parsed.days ? parsed.days.length : 0} daily records and preferences to Firestore?`)) {
+          if (confirm(`Restore ${parsed.days ? parsed.days.length : 0} daily records and preferences?`)) {
             await importBackupData(parsed);
             showToast('Backup restored successfully!', 'success');
             renderSettings(currentUser);
@@ -251,20 +247,6 @@ export async function renderSettings(currentUser) {
         }
       };
       reader.readAsText(file);
-    };
-  }
-
-  // Handle Test Connection
-  const testConnBtn = document.getElementById('btn-test-connection');
-  if (testConnBtn) {
-    testConnBtn.onclick = async () => {
-      showToast('Testing Firestore connection...', 'info');
-      const ok = await testConnection();
-      if (ok) {
-        showToast('Firestore connected and responding!', 'success');
-      } else {
-        showToast('Firestore connection active.', 'info');
-      }
     };
   }
 }

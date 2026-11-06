@@ -136,7 +136,7 @@ export async function loadDayData(dateStr) {
     }
 
     renderTrackerUI();
-    setSyncState('saved', 'Synced with Cloud Firestore');
+    setSyncState('saved', 'All changes saved');
 
     if (onDataUpdatedCallback) {
       onDataUpdatedCallback(currentDayData);
@@ -144,7 +144,7 @@ export async function loadDayData(dateStr) {
   } catch (error) {
     console.error('Error loading day data:', error);
     setSyncState('error', 'Sync failed');
-    showToast('Failed to load study data from Firestore.', 'error');
+    showToast('Failed to load study data. Please try again.', 'error');
   }
 }
 
@@ -168,10 +168,10 @@ export function setSyncState(state, text) {
 
   if (state === 'syncing') {
     dot.className = 'sync-dot syncing';
-    label.textContent = text || 'Syncing...';
+    label.textContent = text || 'Saving...';
   } else if (state === 'saved') {
     dot.className = 'sync-dot';
-    label.textContent = text || 'Saved to Firestore';
+    label.textContent = text || 'All changes saved';
   } else if (state === 'error') {
     dot.className = 'sync-dot';
     dot.style.backgroundColor = 'var(--rose-danger)';
@@ -180,7 +180,7 @@ export function setSyncState(state, text) {
 }
 
 /**
- * Trigger debounce auto-save to Firestore
+ * Trigger debounce auto-save to database
  */
 export function triggerAutoSave() {
   setSyncState('syncing', 'Saving changes...');
@@ -200,7 +200,7 @@ export function triggerAutoSave() {
 
     try {
       await saveDayRecord(activeDate, currentDayData);
-      setSyncState('saved', 'All changes saved to Firestore');
+      setSyncState('saved', 'All changes saved');
 
       // If user hit 100%, trigger celebration!
       if (progress.percentage === 100 && progress.doneCount > 5) {
@@ -212,8 +212,8 @@ export function triggerAutoSave() {
       }
     } catch (err) {
       console.error('Failed to save day record:', err);
-      setSyncState('error', 'Error saving to Firestore');
-      showToast('Error saving data to Firestore', 'error');
+      setSyncState('error', 'Error saving');
+      showToast('Error saving changes. Please try again.', 'error');
     }
   }, 400);
 }

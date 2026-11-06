@@ -162,7 +162,7 @@ export async function renderVerbFlashcards(containerEl) {
           Verb Flashcards & Contextual Memory Lab
         </h1>
         <p class="page-subtitle">
-          Define verbs, usage context, and 2–3 real-life practical sentences. Persisted directly to Firestore <code>user_verbs</code>.
+          Build long-term English fluency with contextual sentences, pronunciation audio, and speed quizzes.
         </p>
       </div>
 
@@ -187,8 +187,8 @@ export async function renderVerbFlashcards(containerEl) {
         <span>Speed Sentence Quiz</span>
       </div>
       <div class="verb-tab-btn ${activeTab === 'library' ? 'active' : ''}" data-tab="library">
-        <i data-lucide="database" style="width: 16px; height: 16px;"></i>
-        <span>Firestore Collection (${totalVerbs})</span>
+        <i data-lucide="book-open" style="width: 16px; height: 16px;"></i>
+        <span>Vocabulary Library (${totalVerbs})</span>
       </div>
     </div>
 
@@ -483,7 +483,7 @@ function renderLibraryView() {
           placeholder="Search by verb, definition, or real-life sentence..." 
           style="max-width: 340px; width: 100%;"
         />
-        <span class="badge badge-teal">Firestore: user_verbs (${verbsList.length})</span>
+        <span class="badge badge-teal">Saved Verbs (${verbsList.length})</span>
       </div>
 
       <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px;" id="verbs-grid-cards">
@@ -507,7 +507,7 @@ function renderVerbCardItem(v) {
             <button class="audio-btn" style="width: 26px; height: 26px;" onclick="window.speakVerb('${escapeJs(v.verb)}')" title="Listen">
               <i data-lucide="volume-2" style="width: 13px; height: 13px;"></i>
             </button>
-            <button class="btn-icon" style="width: 26px; height: 26px;" onclick="window.handleDeleteVerb('${v.id}')" title="Delete from Firestore">
+            <button class="btn-icon" style="width: 26px; height: 26px;" onclick="window.handleDeleteVerb('${v.id}')" title="Delete verb">
               <i data-lucide="trash-2" style="width: 13px; height: 13px; color: var(--rose-danger);"></i>
             </button>
           </div>
@@ -668,7 +668,7 @@ window.handleVerbMastery = async (verbId, isMastered) => {
     await updateUserVerbMastery(verbId, isMastered);
     if (isMastered) {
       triggerCelebration();
-      showToast(`Mastered "${v.verb}"! Persisted to Firestore.`, 'success');
+      showToast(`Mastered "${v.verb}"!`, 'success');
       isCardFlipped = false;
       currentCardIndex = (currentCardIndex + 1) % verbsList.length;
     } else {
@@ -679,10 +679,10 @@ window.handleVerbMastery = async (verbId, isMastered) => {
 };
 
 window.handleDeleteVerb = async (verbId) => {
-  if (confirm('Delete this verb document from your Firestore user_verbs collection?')) {
+  if (confirm('Delete this verb from your vocabulary library?')) {
     await deleteUserVerb(verbId);
     verbsList = verbsList.filter(v => v.id !== verbId);
-    showToast('Verb deleted from user_verbs collection.', 'info');
+    showToast('Verb deleted.', 'info');
     refreshUI();
   }
 };
@@ -722,7 +722,7 @@ function buildVerbCreationModal() {
       <div class="modal-header">
         <h3 class="modal-title" style="display: flex; align-items: center; gap: 8px;">
           <i data-lucide="plus-circle" style="width: 20px; height: 20px; color: var(--teal-primary);"></i>
-          Add Verb to Firestore (user_verbs)
+          Add New Verb Card
         </h3>
         <button class="btn-icon modal-close-btn" onclick="this.closest('.modal-backdrop').classList.remove('active')">&times;</button>
       </div>
@@ -777,8 +777,8 @@ function buildVerbCreationModal() {
       <div class="modal-footer">
         <button class="btn btn-secondary modal-close-btn" onclick="this.closest('.modal-backdrop').classList.remove('active')">Cancel</button>
         <button class="btn btn-primary" id="btn-save-verb-firestore">
-          <i data-lucide="cloud" style="width: 15px; height: 15px;"></i>
-          Save to user_verbs
+          <i data-lucide="bookmark-plus" style="width: 15px; height: 15px;"></i>
+          Save Verb Card
         </button>
       </div>
     </div>
@@ -808,7 +808,7 @@ function buildVerbCreationModal() {
       const sentences = [s1, s2, s3].filter(Boolean);
 
       saveBtn.disabled = true;
-      saveBtn.textContent = 'Saving to Firestore...';
+      saveBtn.textContent = 'Saving...';
 
       try {
         const newVerbDoc = {
@@ -827,7 +827,7 @@ function buildVerbCreationModal() {
         await saveUserVerb(newVerbDoc);
         verbsList.unshift(newVerbDoc);
 
-        showToast(`Saved "${verb}" to user_verbs collection in Firestore!`, 'success');
+        showToast(`Saved "${verb}" to your vocabulary!`, 'success');
         modal.classList.remove('active');
 
         // Clear form
@@ -837,11 +837,11 @@ function buildVerbCreationModal() {
         isCardFlipped = false;
         refreshUI();
       } catch (err) {
-        console.error('Failed to save verb to user_verbs:', err);
-        showToast('Error saving verb to Firestore', 'error');
+        console.error('Failed to save verb:', err);
+        showToast('Error saving verb. Please try again.', 'error');
       } finally {
         saveBtn.disabled = false;
-        saveBtn.textContent = 'Save to user_verbs';
+        saveBtn.textContent = 'Save Verb Card';
       }
     };
   }
